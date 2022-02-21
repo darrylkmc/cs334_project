@@ -2,20 +2,27 @@ import socket
 import time
 import random
 
-host = '172.24.184.219'
+robotIP = '172.24.184.219'
 port = 3310
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+#####################################################################
+#STEP 2
+#####################################################################
+s1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s1.connect((robotIP,port))
 
-s.connect((host,port))
+data = 'shri98'
+s1.send(data.encode())
 
-data = 'darrylmc'
-s.send(data.encode())
 
-iTCPPort2Connect = s.recv(100)
+#####################################################################
+#STEP 3
+#####################################################################
+iTCPPort2Connect = s1.recv(100).decode()
+iTCPPort2Connect = int(iTCPPort2Connect)
 
-print("TCP <%s> accepted." %iTCPPort2Connect.decode())
-iTCPPort2Connect = int(iTCPPort2Connect.decode())
+print("TCP <%d> accepted." %iTCPPort2Connect)
+
 
 listenPort = iTCPPort2Connect
 
@@ -23,23 +30,21 @@ listenPort = iTCPPort2Connect
 print("Creating TCP socket...")
 listenSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 listenSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-listenSocket.bind((host, listenPort))
+listenSocket.bind((robotIP, listenPort))
 listenSocket.listen(5)
 print("Done")
 
-s.close()
-
-# accept connections from outside, a new socket is constructed
-s1, address = listenSocket.accept()
+s2, address = listenSocket.accept()
 robotIP = address[0]
 print("\nClient from %s at port %d connected" %(robotIP,address[1]))
-# Close the listen socket
-# Usually you can use a loop to accept new connections
-listenSocket.close()
-
-ports_to_send = s1.recv(100).decode()
 
 s1.close()
+listenSocket.close()
+
+#####################################################################
+#STEP 4
+#####################################################################
+ports_to_send = s2.recv(100).decode()
 
 ports_to_send = tuple(map(int, ports_to_send.split(',')))
 iUDPPortRobot = int(ports_to_send[0])
@@ -53,11 +58,16 @@ s3.bind(addr)
 s3.sendto(x.encode(),(robotIP,iUDPPortRobot))
 
 print("\nReceiving UDP packet:")
-message, address = s3.recvfrom(int(x)*10)
+message, address = s3.recvfrom(100)
 
 print("Received: ", message)
 
-print("\nSending UDP packet:")
+s2.close()
+
+#####################################################################
+#STEP 5
+#####################################################################
+print("\nResending UDP packet to robot:")
 
 for i in range(0,5):
     s3.sendto(message,(robotIP,iUDPPortRobot))
