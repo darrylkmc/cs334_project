@@ -23,14 +23,13 @@ iTCPPort2Connect = int(iTCPPort2Connect)
 
 print("TCP <%d> accepted." %iTCPPort2Connect)
 
-
 listenPort = iTCPPort2Connect
 
 # Create a TCP socket to listen connection
 print("Creating TCP socket...")
 listenSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 listenSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-listenSocket.bind((robotIP, listenPort))
+listenSocket.bind(('', listenPort))
 listenSocket.listen(5)
 print("Done")
 
@@ -75,5 +74,6 @@ for i in range(0,5):
     print("UDP packet %d sent" %(i+1))
 
 s3.close()
+exit()
     
 
